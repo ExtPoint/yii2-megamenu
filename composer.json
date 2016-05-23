@@ -1,6 +1,5 @@
 {
     "name": "extpoint/yii2-megamenu",
-    "version":"1.0.0",
     "description": "Configurable site map with auto generate page title, breadcrumbs and navigation",
     "keywords": ["yii2", "menu", "navigation", "breadcrumbs"],
     "license": "MIT",
