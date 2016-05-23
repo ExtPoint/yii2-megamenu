@@ -22,37 +22,6 @@ class MegaMenu extends Component {
     private $_requestedRoute;
     private $isModulesFetched = false;
 
-    public static function getUrlRulesFromMenu($items) {
-            $rules = [];
-            foreach ($items as $item) {
-                if (isset($item['url']) && is_array($item['url']) && isset($item['urlRule'])) {
-                    $defaults = $item['url'];
-                    $route = array_shift($defaults);
-
-                    if (is_string($item['urlRule'])) {
-                        $rules[] = [
-                            'pattern' => $item['urlRule'],
-                            'route' => $route,
-                            'defaults' => $defaults,
-                        ];
-                    } elseif (is_array($item['urlRule'])) {
-                        if (!isset($item['urlRule']['route'])) {
-                            $item['urlRule']['route'] = $route;
-                        }
-                        if (!isset($item['urlRule']['defaults'])) {
-                            $item['urlRule']['defaults'] = $defaults;
-                        }
-                        $rules[] = $item['urlRule'];
-                    }
-                }
-
-                if (!empty($item['items'])) {
-                    $rules = array_merge($rules, static::getUrlRulesFromMenu($item['items']));
-                }
-            }
-            return $rules;
-    }
-
     /**
      * Add menu items to end of list
      * @param array $items
@@ -74,12 +43,12 @@ class MegaMenu extends Component {
                 /** @var \yii\base\Module $module */
                 $module = \Yii::$app->getModule($id);
                 if (method_exists($module, 'coreMenu')) {
-                    $this->addItems($module->coreMenu(), false);
+                    $this->addItems($module->coreMenu(), true);
                 }
 
                 // @todo legacy
                 if (method_exists($module, 'coreMenus')) {
-                    $this->addItems($module->coreMenus(), false);
+                    $this->addItems($module->coreMenus(), true);
                 }
             }
         }
@@ -249,6 +218,67 @@ class MegaMenu extends Component {
     }
 
     /**
+     * @param string|array|MegaMenuItem $url1
+     * @param string|array $url2
+     * @return bool
+     */
+    public function isUrlEquals($url1, $url2) {
+        if ($url1 instanceof MegaMenuItem) {
+            $url1 = $url1->url;
+        }
+        if ($url2 instanceof MegaMenuItem) {
+            $url2 = $url2->url;
+        }
+
+        // Is routes
+        if ($this->isRoute($url1) && $this->isRoute($url2)) {
+            if (MenuHelper::normalizeRoute($url1[0]) !== MenuHelper::normalizeRoute($url2[0])) {
+                return false;
+            }
+
+            foreach ($url1 as $key => $value) {
+                if (is_string($key) && $key !== '#') {
+                    if (!isset($url2[$key])) {
+                        return false;
+                    }
+
+                    if ($value !== null && $url2[$key] !== $value) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        // Is urls
+        if (is_string($url1) && is_string($url2)) {
+            return $url1 === $url2;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string|array $url
+     * @return bool
+     */
+    protected function isHomeUrl($url) {
+        if ($this->isRoute($url)) {
+            return \Yii::$app->defaultRoute === $url[0];
+        }
+        return $url === \Yii::$app->homeUrl;
+    }
+
+    /**
+     * @param mixed $value
+     * @return bool
+     */
+    protected function isRoute($value) {
+        return is_array($value) && isset($value[0]) && is_string($value[0]);
+    }
+
+    /**
      * @param MegaMenuItem[] $items
      * @param int $level
      * @return array
@@ -306,95 +336,8 @@ class MegaMenu extends Component {
         return null;
     }
 
-    /**
-     * @param string|array|MegaMenuItem $url1
-     * @param string|array $url2
-     * @return bool
-     */
-    public function isUrlEquals($url1, $url2) {
-        if ($url1 instanceof MegaMenuItem) {
-            $url1 = $url1->url;
-        }
-        if ($url2 instanceof MegaMenuItem) {
-            $url2 = $url2->url;
-        }
-
-        // Is routes
-        if ($this->isRoute($url1) && $this->isRoute($url2)) {
-            if (self::normalizeRoute($url1[0]) !== self::normalizeRoute($url2[0])) {
-                return false;
-            }
-
-            foreach ($url1 as $key => $value) {
-                if (is_string($key) && $key !== '#') {
-                    if (!isset($url2[$key])) {
-                        return false;
-                    }
-
-                    if ($value !== null && $url2[$key] !== $value) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        // Is urls
-        if (is_string($url1) && is_string($url2)) {
-            return $url1 === $url2;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param string|array $url
-     * @return bool
-     */
-    protected function isHomeUrl($url) {
-        if ($this->isRoute($url)) {
-            return \Yii::$app->defaultRoute === $url[0];
-        }
-        return $url === \Yii::$app->homeUrl;
-    }
-
-    /**
-     * @param mixed $value
-     * @return bool
-     */
-    protected function isRoute($value) {
-        return is_array($value) && isset($value[0]) && is_string($value[0]);
-    }
-
-    /**
-     * Function from class \yii\helpers\BaseUrl
-     * @param string $route
-     * @return string
-     */
-    protected static function normalizeRoute($route) {
-        $route = \Yii::getAlias((string) $route);
-        if (strncmp($route, '/', 1) === 0) {
-            // absolute route
-            return ltrim($route, '/');
-        }
-
-        // relative route
-        if (\Yii::$app->controller === null) {
-            throw new InvalidParamException("Unable to resolve the relative route: $route. No active controller is available.");
-        }
-
-        if (strpos($route, '/') === false) {
-            // empty or an action ID
-            return $route === '' ? \Yii::$app->controller->getRoute() : \Yii::$app->controller->getUniqueId() . '/' . $route;
-        } else {
-            // relative to module
-            return ltrim(\Yii::$app->controller->module->getUniqueId() . '/' . $route, '/');
-        }
-    }
-
     protected function mergeItems($baseItems, $items, $append) {
-        foreach (array_reverse($items) as $id => $item) {
+        foreach ($items as $id => $item) {
             // Merge item with group (as key)
             if (is_string($id) && isset($baseItems[$id])) {
                 foreach ($item as $key => $value) {
@@ -432,6 +375,8 @@ class MegaMenu extends Component {
                 }
             }
         }
+
+        ArrayHelper::multisort($baseItems, 'order');
 
         return $baseItems;
     }

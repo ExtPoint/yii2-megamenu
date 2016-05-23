@@ -45,6 +45,11 @@ class MegaMenuItem extends Object {
     public $encode;
 
     /**
+     * @var float
+     */
+    public $order = 0;
+
+    /**
      * @var MegaMenuItem[]
      */
     public $items = [];
