@@ -2,6 +2,7 @@
 
 namespace extpoint\megamenu;
 
+use Yii;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -13,8 +14,8 @@ use yii\helpers\ArrayHelper;
  * @property array $items
  * @property-read array $activeItem
  */
-class MegaMenu extends Component implements BootstrapInterface {
-
+class MegaMenu extends Component implements BootstrapInterface
+{
     /**
      * @var MegaMenuItem[]
      */
@@ -22,7 +23,8 @@ class MegaMenu extends Component implements BootstrapInterface {
     private $_requestedRoute;
     private $isModulesFetched = false;
 
-    public function bootstrap($app) {
+    public function bootstrap($app)
+    {
         $app->urlManager->addRules(MenuHelper::menuToRules($this->items), false);
     }
 
@@ -30,7 +32,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * Add menu items to end of list
      * @param array $items
      */
-    public function setItems(array $items) {
+    public function setItems(array $items)
+    {
         $this->addItems($items);
     }
 
@@ -38,14 +41,15 @@ class MegaMenu extends Component implements BootstrapInterface {
      * Get all tree menu items
      * @return array
      */
-    public function getItems() {
+    public function getItems()
+    {
         if ($this->isModulesFetched === false) {
             $this->isModulesFetched = true;
 
             // Fetch items from modules
-            foreach (\Yii::$app->getModules() as $id => $module) {
+            foreach (Yii::$app->getModules() as $id => $module) {
                 /** @var \yii\base\Module $module */
-                $module = \Yii::$app->getModule($id);
+                $module = Yii::$app->getModule($id);
                 if (method_exists($module, 'coreMenu')) {
                     $this->addItems($module->coreMenu(), true);
                 }
@@ -65,28 +69,30 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param array $items
      * @param bool|true $append
      */
-    public function addItems(array $items, $append = true) {
+    public function addItems(array $items, $append = true)
+    {
         $this->_items = $this->mergeItems($this->_items, $items, $append);
     }
 
     /**
-     * Returned item with current route and parsed params. Alias \Yii::$app->requestedRoute, but also have params
+     * Returned item with current route and parsed params. Alias Yii::$app->requestedRoute, but also have params
      * @return MegaMenuItem|null
      * @throws InvalidConfigException
      */
-    public function getActiveItem() {
+    public function getActiveItem()
+    {
         return $this->getItem($this->getRequestedRoute());
     }
 
-    public function getRequestedRoute() {
+    public function getRequestedRoute()
+    {
         if ($this->_requestedRoute === null) {
-
             // Set active item
-            $parseInfo = \Yii::$app->urlManager->parseRequest(\Yii::$app->request);
+            $parseInfo = Yii::$app->urlManager->parseRequest(Yii::$app->request);
             if ($parseInfo) {
                 $this->_requestedRoute = [$parseInfo[0] ? '/' . $parseInfo[0] : ''] + $parseInfo[1];
             } else {
-                $this->_requestedRoute = ['/' . \Yii::$app->errorHandler->errorAction];
+                $this->_requestedRoute = ['/' . Yii::$app->errorHandler->errorAction];
             }
         }
         return $this->_requestedRoute;
@@ -102,7 +108,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @return array
      * @throws InvalidConfigException
      */
-    public function getMenu($fromItem = null, $custom = []) {
+    public function getMenu($fromItem = null, $custom = [])
+    {
         $itemModels = [];
         if ($fromItem) {
             $item = $this->getItem($fromItem);
@@ -124,7 +131,7 @@ class MegaMenu extends Component implements BootstrapInterface {
             $menu = $itemModels;
         } else {
             // Custom
-            // @todo
+            /** @TODO */
             /*  foreach ($custom as $item) {
                 $menuItemModel = $this->getItem($item);
 
@@ -142,7 +149,7 @@ class MegaMenu extends Component implements BootstrapInterface {
             }*/
         }
 
-        return array_map(function($itemModel) {
+        return array_map(function ($itemModel) {
             /** @type MegaMenuItem $itemModel */
             return $itemModel->toArray();
         }, $menu);
@@ -153,7 +160,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param array|null $url Child url or route, default - current route
      * @return string
      */
-    public function getTitle($url = null) {
+    public function getTitle($url = null)
+    {
         $titles = array_reverse($this->getBreadcrumbs($url));
         return !empty($titles) ? reset($titles)['label'] : '';
     }
@@ -164,12 +172,13 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param string $separator Separator, default is " - "
      * @return string
      */
-    public function getFullTitle($url = null, $separator = ' — ') {
+    public function getFullTitle($url = null, $separator = ' — ')
+    {
         $title = [];
         foreach (array_reverse($this->getBreadcrumbs($url)) as $item) {
             $title[] = $item['label'];
         }
-        $title[] = \Yii::$app->name;
+        $title[] = Yii::$app->name;
         return implode($separator, $title);
     }
 
@@ -178,7 +187,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param array|null $url Child url or route, default - current route
      * @return array
      */
-    public function getBreadcrumbs($url = null) {
+    public function getBreadcrumbs($url = null)
+    {
         $url = $url ?: $this->getRequestedRoute();
 
         // Find child and it parents by url
@@ -204,7 +214,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @return MegaMenuItem|null
      * @throws InvalidConfigException
      */
-    public function getItem($item, &$parents = []) {
+    public function getItem($item, &$parents = [])
+    {
         $url = is_array($item) && !$this->isRoute($item) ?
             $item['url'] :
             $item;
@@ -216,7 +227,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param $item
      * @return array|null|string
      */
-    public function getItemUrl($item) {
+    public function getItemUrl($item)
+    {
         $item = $this->getItem($item);
         return $item ? $item->url : null;
     }
@@ -226,7 +238,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param string|array $url2
      * @return bool
      */
-    public function isUrlEquals($url1, $url2) {
+    public function isUrlEquals($url1, $url2)
+    {
         if ($url1 instanceof MegaMenuItem) {
             $url1 = $url1->url;
         }
@@ -267,18 +280,20 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param string|array $url
      * @return bool
      */
-    protected function isHomeUrl($url) {
+    protected function isHomeUrl($url)
+    {
         if ($this->isRoute($url)) {
-            return \Yii::$app->defaultRoute === $url[0];
+            return Yii::$app->defaultRoute === $url[0];
         }
-        return $url === \Yii::$app->homeUrl;
+        return $url === Yii::$app->homeUrl;
     }
 
     /**
      * @param mixed $value
      * @return bool
      */
-    protected function isRoute($value) {
+    protected function isRoute($value)
+    {
         return is_array($value) && isset($value[0]) && is_string($value[0]);
     }
 
@@ -287,7 +302,8 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param int $level
      * @return array
      */
-    protected function sliceTreeItems(array $items, $level = 1) {
+    protected function sliceTreeItems(array $items, $level = 1)
+    {
         if ($level <= 0) {
             return [];
         }
@@ -319,20 +335,21 @@ class MegaMenu extends Component implements BootstrapInterface {
      * @param array $parents
      * @return MegaMenuItem
      */
-    protected function findItemRecursive($url, array $items, &$parents) {
+    protected function findItemRecursive($url, array $items, &$parents)
+    {
         foreach ($items as $itemModel) {
             if ($itemModel->url && $this->isUrlEquals($url, $itemModel->url)) {
                 return $itemModel;
             }
 
             if (!empty($itemModel->items)) {
-                $finedItem = $this->findItemRecursive($url, $itemModel->items, $parents);
-                if ($finedItem) {
+                $foundItem = $this->findItemRecursive($url, $itemModel->items, $parents);
+                if ($foundItem) {
                     $parentItem = $itemModel->toArray();
                     unset($parentItem['items']);
                     $parents[] = $parentItem;
 
-                    return $finedItem;
+                    return $foundItem;
                 }
             }
         }
@@ -340,7 +357,8 @@ class MegaMenu extends Component implements BootstrapInterface {
         return null;
     }
 
-    protected function mergeItems($baseItems, $items, $append) {
+    protected function mergeItems($baseItems, $items, $append)
+    {
         foreach ($items as $id => $item) {
             // Merge item with group (as key)
             if (is_string($id) && isset($baseItems[$id])) {
@@ -351,12 +369,11 @@ class MegaMenu extends Component implements BootstrapInterface {
                         $baseItems[$id]->$key = $append ?
                             ArrayHelper::merge($baseItems[$id]->$key, $value) :
                             ArrayHelper::merge($value, $baseItems[$id]->$key);
-                    } else if ($append || $baseItems[$id]->$key === null) {
+                    } elseif ($append || $baseItems[$id]->$key === null) {
                         $baseItems[$id]->$key = $value;
                     }
                 }
             } else {
-
                 // Create instance
                 if (!($item instanceof MegaMenuItem)) {
                     $item = new MegaMenuItem($item + ['owner' => $this]);
@@ -384,5 +401,4 @@ class MegaMenu extends Component implements BootstrapInterface {
 
         return $baseItems;
     }
-
 }
