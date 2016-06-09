@@ -2,6 +2,7 @@
 
 namespace extpoint\megamenu;
 
+use Yii;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -46,9 +47,9 @@ class MegaMenu extends Component implements BootstrapInterface
             $this->isModulesFetched = true;
 
             // Fetch items from modules
-            foreach (\Yii::$app->getModules() as $id => $module) {
+            foreach (Yii::$app->getModules() as $id => $module) {
                 /** @var \yii\base\Module $module */
-                $module = \Yii::$app->getModule($id);
+                $module = Yii::$app->getModule($id);
                 if (method_exists($module, 'coreMenu')) {
                     $this->addItems($module->coreMenu(), true);
                 }
@@ -74,7 +75,7 @@ class MegaMenu extends Component implements BootstrapInterface
     }
 
     /**
-     * Returned item with current route and parsed params. Alias \Yii::$app->requestedRoute, but also have params
+     * Returned item with current route and parsed params. Alias Yii::$app->requestedRoute, but also have params
      * @return MegaMenuItem|null
      * @throws InvalidConfigException
      */
@@ -87,11 +88,11 @@ class MegaMenu extends Component implements BootstrapInterface
     {
         if ($this->_requestedRoute === null) {
             // Set active item
-            $parseInfo = \Yii::$app->urlManager->parseRequest(\Yii::$app->request);
+            $parseInfo = Yii::$app->urlManager->parseRequest(Yii::$app->request);
             if ($parseInfo) {
                 $this->_requestedRoute = [$parseInfo[0] ? '/' . $parseInfo[0] : ''] + $parseInfo[1];
             } else {
-                $this->_requestedRoute = ['/' . \Yii::$app->errorHandler->errorAction];
+                $this->_requestedRoute = ['/' . Yii::$app->errorHandler->errorAction];
             }
         }
         return $this->_requestedRoute;
@@ -177,7 +178,7 @@ class MegaMenu extends Component implements BootstrapInterface
         foreach (array_reverse($this->getBreadcrumbs($url)) as $item) {
             $title[] = $item['label'];
         }
-        $title[] = \Yii::$app->name;
+        $title[] = Yii::$app->name;
         return implode($separator, $title);
     }
 
@@ -282,9 +283,9 @@ class MegaMenu extends Component implements BootstrapInterface
     protected function isHomeUrl($url)
     {
         if ($this->isRoute($url)) {
-            return \Yii::$app->defaultRoute === $url[0];
+            return Yii::$app->defaultRoute === $url[0];
         }
-        return $url === \Yii::$app->homeUrl;
+        return $url === Yii::$app->homeUrl;
     }
 
     /**
