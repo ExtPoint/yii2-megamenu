@@ -2,6 +2,7 @@
 
 namespace extpoint\megamenu;
 
+use Yii;
 use yii\base\Object;
 use yii\web\UrlRule;
 
@@ -10,8 +11,8 @@ use yii\web\UrlRule;
  * @package extpoint\yii2\components
  * @property bool $active
  */
-class MegaMenuItem extends Object {
-
+class MegaMenuItem extends Object
+{
     /**
      * @var string
      */
@@ -77,7 +78,8 @@ class MegaMenuItem extends Object {
     /**
      * @return bool
      */
-    public function getActive() {
+    public function getActive()
+    {
         if ($this->_active === null) {
             $this->_active = false;
 
@@ -98,14 +100,16 @@ class MegaMenuItem extends Object {
     /**
      * @param bool $value
      */
-    public function setActive($value) {
+    public function setActive($value)
+    {
         $this->_active = (bool)$value;
     }
 
     /**
      * @return bool
      */
-    public function getVisible() {
+    public function getVisible()
+    {
         if ($this->visible !== null) {
             return $this->visible;
         }
@@ -113,14 +117,14 @@ class MegaMenuItem extends Object {
         if ($this->roles) {
             foreach ((array)$this->roles as $role) {
                 if ($role === '?') {
-                    if (\Yii::$app->user->getIsGuest()) {
+                    if (Yii::$app->user->isGuest) {
                         return true;
                     }
                 } elseif ($role === '@') {
-                    if (!\Yii::$app->user->getIsGuest()) {
+                    if (!Yii::$app->user->isGuest) {
                         return true;
                     }
-                } elseif (\Yii::$app->user->can($role)) {
+                } elseif (Yii::$app->user->can($role)) {
                     return true;
                 }
             }
@@ -133,7 +137,8 @@ class MegaMenuItem extends Object {
     /**
      * @return array
      */
-    public function toArray() {
+    public function toArray()
+    {
         return [
             'label' => $this->label,
             'url' => $this->url,
@@ -146,5 +151,4 @@ class MegaMenuItem extends Object {
             'linkOptions' => $this->linkOptions,
         ];
     }
-
 }
