@@ -3,6 +3,34 @@
 Configurable site map with auto generate page title, breadcrumbs and navigation.
 
 
+## Install
+
+Install by composer:
+
+```sh
+$ composer require ExtPoint/yii2-megamenu
+```
+
+After install, add MegaMenu to configuration:
+
+```php
+...
+'bootstrap' => ['log', 'megamenu'],
+...
+```
+
+```php
+'components' => [
+    'megaMenu'=> [
+        'class' => '\extpoint\megamenu\MegaMenu',
+        'items' => [
+            // sitemap
+        ],
+    ],
+    ...
+],
+```
+
 ## Features
 
 - Auto generate page title, breadcrumbs, menus and navigation from site map configuration;
