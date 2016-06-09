@@ -117,11 +117,11 @@ class MegaMenuItem extends Object
         if ($this->roles) {
             foreach ((array)$this->roles as $role) {
                 if ($role === '?') {
-                    if (Yii::$app->user->isGuest()) {
+                    if (Yii::$app->user->isGuest) {
                         return true;
                     }
                 } elseif ($role === '@') {
-                    if (!Yii::$app->user->isGuest()) {
+                    if (!Yii::$app->user->isGuest) {
                         return true;
                     }
                 } elseif (Yii::$app->user->can($role)) {
