@@ -3,6 +3,7 @@
 namespace extpoint\megamenu;
 
 use yii\base\InvalidParamException;
+use yii\helpers\ArrayHelper;
 use yii\web\Request;
 
 class MenuHelper {
@@ -10,29 +11,33 @@ class MenuHelper {
     public static function menuToRules($items) {
         $rules = [];
         foreach ($items as $item) {
-            if (isset($item['url']) && is_array($item['url']) && isset($item['urlRule'])) {
-                $defaults = $item['url'];
+            $url = ArrayHelper::getValue($item, 'url');
+            $urlRule = ArrayHelper::getValue($item, 'urlRule');
+
+            if ($url && $urlRule && is_array($url)) {
+                $defaults = $url;
                 $route = array_shift($defaults);
 
-                if (is_string($item['urlRule'])) {
+                if (is_string($urlRule)) {
                     $rules[] = [
-                        'pattern' => $item['urlRule'],
+                        'pattern' => $urlRule,
                         'route' => $route,
                         'defaults' => $defaults,
                     ];
-                } elseif (is_array($item['urlRule'])) {
-                    if (!isset($item['urlRule']['route'])) {
-                        $item['urlRule']['route'] = $route;
+                } elseif (is_array($urlRule)) {
+                    if (!isset($urlRule['route'])) {
+                        $urlRule['route'] = $route;
                     }
-                    if (!isset($item['urlRule']['defaults'])) {
-                        $item['urlRule']['defaults'] = $defaults;
+                    if (!isset($urlRule['defaults'])) {
+                        $urlRule['defaults'] = $defaults;
                     }
-                    $rules[] = $item['urlRule'];
+                    $rules[] = $urlRule;
                 }
             }
 
-            if (!empty($item['items'])) {
-                $rules = array_merge($rules, static::menuToRules($item['items']));
+            $subItems = ArrayHelper::getValue($item, 'items');
+            if (is_array($subItems)) {
+                $rules = array_merge(static::menuToRules($subItems), $rules);
             }
         }
         return $rules;

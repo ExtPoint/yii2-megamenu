@@ -54,9 +54,9 @@ Examples:
 
 ```js
 isUrlEquals('http://google.com', 'http://google.com') // true
-isUrlEquals(['qq/ww/ee'], ['aa/bb/cc']) // false
-isUrlEquals(['aa/bb/cc', 'foo' => null], ['aa/bb/cc']) // false
-isUrlEquals(['aa/bb/cc', 'foo' => null], ['aa/bb/cc', 'foo' => null]) // true
-isUrlEquals(['aa/bb/cc', 'foo' => 'qwe'], ['aa/bb/cc', 'foo' => null]) // true
-isUrlEquals(['aa/bb/cc', 'foo' => 'qwe'], ['aa/bb/cc', 'foo' => '555']) // false
+isUrlEquals(['/qq/ww/ee'], ['/aa/bb/cc']) // false
+isUrlEquals(['/aa/bb/cc', 'foo' => null], ['/aa/bb/cc']) // false
+isUrlEquals(['/aa/bb/cc', 'foo' => null], ['/aa/bb/cc', 'foo' => null]) // true
+isUrlEquals(['/aa/bb/cc', 'foo' => 'qwe'], ['/aa/bb/cc', 'foo' => null]) // true
+isUrlEquals(['/aa/bb/cc', 'foo' => 'qwe'], ['/aa/bb/cc', 'foo' => '555']) // false
 ```

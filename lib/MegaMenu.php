@@ -2,9 +2,9 @@
 
 namespace extpoint\megamenu;
 
+use yii\base\BootstrapInterface;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -13,7 +13,7 @@ use yii\helpers\ArrayHelper;
  * @property array $items
  * @property-read array $activeItem
  */
-class MegaMenu extends Component {
+class MegaMenu extends Component implements BootstrapInterface {
 
     /**
      * @var MegaMenuItem[]
@@ -21,6 +21,10 @@ class MegaMenu extends Component {
     private $_items = [];
     private $_requestedRoute;
     private $isModulesFetched = false;
+
+    public function bootstrap($app) {
+        $app->urlManager->addRules(MenuHelper::menuToRules($this->items), false);
+    }
 
     /**
      * Add menu items to end of list
@@ -238,11 +242,11 @@ class MegaMenu extends Component {
 
             foreach ($url1 as $key => $value) {
                 if (is_string($key) && $key !== '#') {
-                    if (!isset($url2[$key])) {
+                    if (!array_key_exists($key, $url2)) {
                         return false;
                     }
 
-                    if ($value !== null && $url2[$key] !== $value) {
+                    if ($value !== null && $url2[$key] !== null && $url2[$key] !== $value) {
                         return false;
                     }
                 }

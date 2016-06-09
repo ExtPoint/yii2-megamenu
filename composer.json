@@ -14,9 +14,19 @@
         "php":">=5.4.0",
         "yiisoft/yii2": "2.*"
     },
+    "require-dev":{
+        "yiisoft/yii2-bootstrap": "*",
+        "phpunit/phpunit": "^4.8"
+    },
     "autoload": {
         "psr-4": {
             "extpoint\\megamenu\\": "lib/"
+        }
+    },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
         }
     }
 }
