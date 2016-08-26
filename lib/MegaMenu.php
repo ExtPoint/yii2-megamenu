@@ -202,6 +202,7 @@ class MegaMenu extends Component implements BootstrapInterface
         $parents[] = [
             'label' => $itemModel->label,
             'url' => $itemModel->url,
+            'linkOptions' => is_array($itemModel->linkOptions) ? $itemModel->linkOptions : [],
         ];
 
         foreach ($parents as &$parent) {
