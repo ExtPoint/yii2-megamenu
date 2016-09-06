@@ -296,7 +296,7 @@ class MegaMenu extends Component implements BootstrapInterface
     protected function isHomeUrl($url)
     {
         if ($this->isRoute($url)) {
-            return Yii::$app->defaultRoute === $url[0];
+            return $this->isUrlEquals(['/' . Yii::$app->defaultRoute], $url);
         }
         return $url === Yii::$app->homeUrl;
     }
