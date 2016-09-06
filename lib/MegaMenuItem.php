@@ -76,6 +76,11 @@ class MegaMenuItem extends Object
     public $_active;
 
     /**
+     * @var callable
+     */
+    public $accessCheck;
+
+    /**
      * @return bool
      */
     public function getActive()
@@ -112,6 +117,11 @@ class MegaMenuItem extends Object
     {
         if ($this->visible !== null) {
             return $this->visible;
+        }
+
+        if ($this->accessCheck) {
+            $result = call_user_func($this->accessCheck);
+            return $result;
         }
 
         if ($this->roles) {

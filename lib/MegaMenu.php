@@ -261,6 +261,11 @@ class MegaMenu extends Component implements BootstrapInterface
                 return false;
             }
 
+            // Compare routes' parameters by checking if keys are identical
+            if (count(array_diff_key($url1, $url2)) || count(array_diff_key($url2, $url1))) {
+                return false;
+            }
+
             foreach ($url1 as $key => $value) {
                 if (is_string($key) && $key !== '#') {
                     if (!array_key_exists($key, $url2)) {
