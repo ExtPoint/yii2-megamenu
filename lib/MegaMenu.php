@@ -3,10 +3,11 @@
 namespace extpoint\megamenu;
 
 use Yii;
-use yii\base\BootstrapInterface;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
+use yii\web\Application;
+use yii\web\ForbiddenHttpException;
 
 /**
  * Class MegaMenu
@@ -14,7 +15,7 @@ use yii\helpers\ArrayHelper;
  * @property array $items
  * @property-read array $activeItem
  */
-class MegaMenu extends Component implements BootstrapInterface
+class MegaMenu extends Component
 {
     /**
      * @var MegaMenuItem[]
@@ -23,9 +24,10 @@ class MegaMenu extends Component implements BootstrapInterface
     private $_requestedRoute;
     private $isModulesFetched = false;
 
-    public function bootstrap($app)
+    public function init()
     {
-        $app->urlManager->addRules(MenuHelper::menuToRules($this->items), false);
+        parent::init();
+        Yii::$app->urlManager->addRules(MenuHelper::menuToRules($this->_items), false);
     }
 
     /**
@@ -413,5 +415,14 @@ class MegaMenu extends Component implements BootstrapInterface
         ArrayHelper::multisort($baseItems, 'order');
 
         return $baseItems;
+    }
+
+    public function isAllowAccess($url) {
+        $menuItem = $this->getItem($url);
+        if (!$menuItem) {
+            return true;
+        }
+
+        return $menuItem->checkVisible($url);
     }
 }

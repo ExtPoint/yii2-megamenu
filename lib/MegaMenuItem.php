@@ -4,6 +4,7 @@ namespace extpoint\megamenu;
 
 use Yii;
 use yii\base\Object;
+use yii\helpers\ArrayHelper;
 use yii\web\UrlRule;
 
 /**
@@ -76,7 +77,7 @@ class MegaMenuItem extends Object
     public $_active;
 
     /**
-     * @var callable
+     * @var callable|callable[]
      */
     public $accessCheck;
 
@@ -119,22 +120,32 @@ class MegaMenuItem extends Object
             return $this->visible;
         }
 
-        if ($this->accessCheck) {
-            $result = call_user_func($this->accessCheck);
-            return $result;
-        }
+        return $this->checkVisible($this->url);
+    }
 
-        if ($this->roles) {
-            foreach ((array)$this->roles as $role) {
-                if ($role === '?') {
+    /**
+     * @param array $url
+     * @return bool
+     */
+    public function checkVisible($url) {
+        $rules = array_merge((array)$this->accessCheck, (array)$this->roles);
+        if (!empty($rules)) {
+            foreach ($rules as $rule) {
+                if (is_callable($rule)) {
+                    $params = call_user_func($rule, $url);
+                    $permissionName = ArrayHelper::remove($params, '0');
+                    if ($permissionName && Yii::$app->user->can($permissionName, $params)) {
+                        return true;
+                    }
+                } elseif ($rule === '?') {
                     if (Yii::$app->user->isGuest) {
                         return true;
                     }
-                } elseif ($role === '@') {
+                } elseif ($rule === '@') {
                     if (!Yii::$app->user->isGuest) {
                         return true;
                     }
-                } elseif (Yii::$app->user->can($role)) {
+                } elseif (Yii::$app->user->can($rule)) {
                     return true;
                 }
             }
