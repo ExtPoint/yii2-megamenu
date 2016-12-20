@@ -24,7 +24,7 @@ class MegaMenuTest extends \PHPUnit_Framework_TestCase
             'items' => $this->getMenu(),
         ]);
 
-        $this->assertEquals(['/site/page', 'name' => 'habrahabr'], $menu->getItemUrl(['/site/page']));
+        $this->assertEquals(['/site/page', 'name' => 'habrahabr'], $menu->getItemUrl(['/site/page', 'name' => 'habrahabr']));
         $this->assertEquals(['/site/page', 'name' => 'habrahabr'], $menu->getItemUrl('habrahabr.publications'));
         $this->assertEquals([
             ['url' => ['/site/index'], 'items' => null],
