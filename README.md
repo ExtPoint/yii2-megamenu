@@ -44,7 +44,7 @@ After install, add MegaMenu to configuration:
 - `addItems()` Add tree menu items;
 - `getItems()` Get all tree menu items;
 - `getActiveItem()` Returned item with current route and parsed params. Alias `\Yii::$app->requestedRoute`, but also have params;
-- `getMenu($fromItem = null, $custom = [])` Recursive find menu item by param $item (set null for return root) and return tree menu items (in format for `\yii\bootstrap\Nav::items`). In param $custom you can overwrite items configuration, if set it as array. Set param $custom as integer for limit tree levels. For example, `getMenu(null, 2)` return two-level menu;
+- `getMenu($fromItem = null, $custom = null)` Recursive find menu item by param $item (set null for return root) and return tree menu items (in format for `\yii\bootstrap\Nav::items`). Set param $custom as integer for limit tree levels. For example, `getMenu(null, 2)` return two-level menu;
 - `getTitle($url = null)` Find item by url (ot current page) label and return it;
 - `getFullTitle($url = null, $separator = ' — ')` Find item by url (or current page) and return item label with all parent labels;
 - `getBreadcrumbs($url = null)` Return breadcrumbs links for widget `\yii\widgets\Breadcrumbs`;
@@ -69,6 +69,7 @@ Additional properties:
 - urlRule (string, array or `\yii\rest\UrlRule` instance) Value format is identical to item from `\yii\web\UrlManager::rules`;
 - roles (string or array of strings) Value format is identical to `\yii\filters\AccessRule::roles`. `"?"`, `"@"` and string role are supported.
 - order (integer or float) Each menu items sorted by `order` param. Default is zero.
+- redirectToChild (boolean or string) Set true or child item id for use link from this item.
 
 
 ## How does item search
@@ -80,7 +81,7 @@ If param value is null, then compared only it keys. If param value is not null, 
 
 Examples:
 
-```js
+```php
 isUrlEquals('http://google.com', 'http://google.com') // true
 isUrlEquals(['/qq/ww/ee'], ['/aa/bb/cc']) // false
 isUrlEquals(['/aa/bb/cc', 'foo' => null], ['/aa/bb/cc']) // false

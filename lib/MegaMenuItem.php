@@ -73,6 +73,11 @@ class MegaMenuItem extends Object
     /**
      * @var bool
      */
+    public $redirectToChild = false;
+
+    /**
+     * @var bool
+     */
     public $_active;
 
     /**

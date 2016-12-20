@@ -12,6 +12,7 @@ use yii\helpers\ArrayHelper;
  * Class MegaMenu
  * @package extpoint\yii2\components
  * @property array $items
+ * @property array $requestedRoute
  * @property-read array $activeItem
  */
 class MegaMenu extends Component implements BootstrapInterface
@@ -98,17 +99,21 @@ class MegaMenu extends Component implements BootstrapInterface
         return $this->_requestedRoute;
     }
 
+    public function setRequestedRoute($value) {
+        $this->_requestedRoute = $value;
+    }
+
     /**
      * Recursive find menu item by param $item (set null for return root) and return tree menu
      * items (in format for yii\bootstrap\Nav::items). In param $custom you can overwrite items
      * configuration, if set it as array. Set param $custom as integer for limit tree levels.
      * For example, getMenu(null, 2) return two-level menu
      * @param array $fromItem
-     * @param array|int $custom Items or level limit
+     * @param int $level Level limit
      * @return array
      * @throws InvalidConfigException
      */
-    public function getMenu($fromItem = null, $custom = [])
+    public function getMenu($fromItem = null, $level = null)
     {
         $itemModels = [];
         if ($fromItem) {
@@ -120,39 +125,15 @@ class MegaMenu extends Component implements BootstrapInterface
             $itemModels = $this->getItems();
         }
 
-        if (is_int($custom)) {
+        if (is_int($level)) {
             // Level limit
-            return $this->sliceTreeItems($itemModels, $custom);
-        }
-
-        $menu = [];
-        if (empty($custom)) {
-            // All
-            $menu = $itemModels;
-        } else {
-            // Custom
-            /** @TODO */
-            /*  foreach ($custom as $item) {
-                $menuItemModel = $this->getItem($item);
-
-                // Process items
-                if (isset($item['items'])) {
-                    $menuItemModel['items'] = $this->getMenu($item['items']);
-                } else {
-                    unset($menuItemModel['items']);
-                }
-
-                // Extend item
-                $menuItemModel = array_merge($menuItemModel, $item);
-
-                $menu[] = $menuItemModel;
-            }*/
+            return $this->sliceTreeItems($itemModels, $level);
         }
 
         return array_map(function ($itemModel) {
             /** @type MegaMenuItem $itemModel */
             return $itemModel->toArray();
-        }, $menu);
+        }, $itemModels);
     }
 
     /**
@@ -224,10 +205,14 @@ class MegaMenu extends Component implements BootstrapInterface
      */
     public function getItem($item, &$parents = [])
     {
-        $url = is_array($item) && !$this->isRoute($item) ?
-            $item['url'] :
-            $item;
-        return $this->findItemRecursive($url, $this->getItems(), $parents);
+        if (is_array($item) && !$this->isRoute($item)) {
+            $item = $item['url'];
+        }
+        if (is_string($item) && strpos($item, '/') === false) {
+            $item = implode('.items.', explode('.', $item));
+            return ArrayHelper::getValue($this->getItems(), $item);
+        }
+        return $this->findItemRecursive($item, $this->getItems(), $parents);
     }
 
     /**
@@ -319,16 +304,26 @@ class MegaMenu extends Component implements BootstrapInterface
         $menu = [];
         foreach ($items as $itemModel) {
             $item = $itemModel->toArray();
+            $nextLevel = $level;
 
             if (!empty($itemModel->items)) {
-                $nextLevel = $level;
-                if ($itemModel->url !== null) {
+                if ($itemModel->redirectToChild) {
+                    $childModel = null;
+                    if ($itemModel->redirectToChild === true) {
+                        $childModel = reset($itemModel->items);
+                    } elseif (is_string($itemModel->redirectToChild)) {
+                        $childModel = ArrayHelper::getValue($itemModel->items, $itemModel->redirectToChild);
+                    }
+                    if ($childModel) {
+                        $item['url'] = $childModel->url;
+                    }
+                    $nextLevel--;
+                } elseif ($itemModel->url !== null) {
                     $nextLevel--;
                 }
-
-                $item['items'] = $this->sliceTreeItems($itemModel->items, $nextLevel);
             }
 
+            $item['items'] = $this->sliceTreeItems($itemModel->items, $nextLevel);
             if (empty($item['items'])) {
                 $item['items'] = null;
             }
