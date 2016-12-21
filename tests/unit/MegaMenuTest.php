@@ -28,7 +28,7 @@ class MegaMenuTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['/site/page', 'name' => 'habrahabr'], $menu->getItemUrl('habrahabr.publications'));
         $this->assertEquals([
             ['url' => ['/site/index'], 'items' => null],
-            ['url' => ['/site/page', 'name' => 'habrahabr'], 'items' => null],
+            'habrahabr' => ['url' => ['/site/page', 'name' => 'habrahabr'], 'items' => null],
             ['url' => ['/site/page', 'name' => 'geektimes'], 'items' => null],
             ['url' => ['/site/page', 'name' => 'toster'], 'items' => null],
         ], array_map(function($item) {
@@ -38,8 +38,8 @@ class MegaMenuTest extends \PHPUnit_Framework_TestCase
             ];
         }, $menu->getMenu(null, 1)));
         $this->assertEquals([
-            ['url' => ['/site/page', 'name' => 'habrahabr', 'category' => 'top'], 'items' => null],
-            ['url' => ['/site/hubs'], 'items' => null],
+            'publications' => ['url' => ['/site/page', 'name' => 'habrahabr', 'category' => 'top'], 'items' => null],
+            'hubs' => ['url' => ['/site/hubs'], 'items' => null],
         ], array_map(function($item) {
             return [
                 'url' => $item['url'],

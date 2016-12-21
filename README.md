@@ -69,7 +69,7 @@ Additional properties:
 - urlRule (string, array or `\yii\rest\UrlRule` instance) Value format is identical to item from `\yii\web\UrlManager::rules`;
 - roles (string or array of strings) Value format is identical to `\yii\filters\AccessRule::roles`. `"?"`, `"@"` and string role are supported.
 - order (integer or float) Each menu items sorted by `order` param. Default is zero.
-- redirectToChild (boolean or string) Set true or child item id for use link from this item.
+- redirectToChild (boolean, string or integer) Set true or child item id for use link from this item.
 
 
 ## How does item search

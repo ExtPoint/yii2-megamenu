@@ -309,7 +309,7 @@ class MegaMenu extends Component
         }
 
         $menu = [];
-        foreach ($items as $itemModel) {
+        foreach ($items as $key => $itemModel) {
             $item = $itemModel->toArray();
             $nextLevel = $level;
 
@@ -318,7 +318,7 @@ class MegaMenu extends Component
                     $childModel = null;
                     if ($itemModel->redirectToChild === true) {
                         $childModel = reset($itemModel->items);
-                    } elseif (is_string($itemModel->redirectToChild)) {
+                    } elseif (is_string($itemModel->redirectToChild) || is_int($itemModel->redirectToChild)) {
                         $childModel = ArrayHelper::getValue($itemModel->items, $itemModel->redirectToChild);
                     }
                     if ($childModel) {
@@ -334,7 +334,7 @@ class MegaMenu extends Component
             if (empty($item['items'])) {
                 $item['items'] = null;
             }
-            $menu[] = $item;
+            $menu[$key] = $item;
         }
         return $menu;
     }

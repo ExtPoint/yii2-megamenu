@@ -72,7 +72,7 @@ class MegaMenuItem extends Object
     public $owner;
 
     /**
-     * @var bool
+     * @var bool|string|int
      */
     public $redirectToChild = false;
 
