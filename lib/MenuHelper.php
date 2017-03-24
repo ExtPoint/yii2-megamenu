@@ -30,14 +30,10 @@ class MenuHelper
                     $rules[] = [
                         'pattern' => $urlRule,
                         'route' => $route,
-                        'defaults' => $defaults,
                     ];
                 } elseif (is_array($urlRule)) {
                     if (!isset($urlRule['route'])) {
                         $urlRule['route'] = $route;
-                    }
-                    if (!isset($urlRule['defaults'])) {
-                        $urlRule['defaults'] = $defaults;
                     }
                     $rules[] = $urlRule;
                 }
@@ -62,7 +58,7 @@ class MenuHelper
         $route = Yii::getAlias((string) $route);
         if (strncmp($route, '/', 1) === 0) {
             // absolute route
-            return ltrim($route, '/');
+            return trim($route, '/');
         }
 
         // relative route

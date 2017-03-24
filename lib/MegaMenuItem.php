@@ -87,6 +87,16 @@ class MegaMenuItem extends Object
     public $accessCheck;
 
     /**
+     * @var string
+     */
+    public $icon;
+
+    /**
+     * @var int|string
+     */
+    public $badge;
+
+    /**
      * @return bool
      */
     public function getActive()
@@ -172,6 +182,8 @@ class MegaMenuItem extends Object
             'visible' => $this->getVisible(),
             'encode' => $this->encode,
             'active' => $this->active,
+            'icon' => $this->icon,
+            'badge' => $this->badge,
             'items' => $this->items,
             'options' => $this->options,
             'linkOptions' => $this->linkOptions,
