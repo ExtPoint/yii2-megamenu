@@ -57,6 +57,14 @@ class MegaMenu extends Component
                     $this->addItems($module->coreMenu(), true);
                 }
 
+                // Submodules support
+                foreach ($module->getModules() as $subId => $subModule) {
+                    $subModule = $module->getModule($subId);
+                    if (method_exists($subModule, 'coreMenu')) {
+                        $this->addItems($subModule->coreMenu(), true);
+                    }
+                }
+
                 // @todo legacy
                 if (method_exists($module, 'coreMenus')) {
                     $this->addItems($module->coreMenus(), true);
@@ -101,7 +109,8 @@ class MegaMenu extends Component
         return $this->_requestedRoute;
     }
 
-    public function setRequestedRoute($value) {
+    public function setRequestedRoute($value)
+    {
         $this->_requestedRoute = $value;
     }
 
@@ -177,14 +186,14 @@ class MegaMenu extends Component
         // Find child and it parents by url
         $itemModel = $this->getItem($url, $parents);
 
-        if (!$itemModel || (empty($parents) && $this->isHomeUrl($itemModel->url))) {
+        if (!$itemModel || (empty($parents) && $this->isHomeUrl($itemModel->normalizedUrl))) {
             return [];
         }
 
-        $parents = array_reverse((array) $parents);
+        $parents = array_reverse((array)$parents);
         $parents[] = [
             'label' => $itemModel->label,
-            'url' => $itemModel->url,
+            'url' => $itemModel->normalizedUrl,
             'linkOptions' => is_array($itemModel->linkOptions) ? $itemModel->linkOptions : [],
         ];
 
@@ -225,7 +234,7 @@ class MegaMenu extends Component
     public function getItemUrl($item)
     {
         $item = $this->getItem($item);
-        return $item ? $item->url : null;
+        return $item ? $item->normalizedUrl : null;
     }
 
     /**
@@ -236,10 +245,10 @@ class MegaMenu extends Component
     public function isUrlEquals($url1, $url2)
     {
         if ($url1 instanceof MegaMenuItem) {
-            $url1 = $url1->url;
+            $url1 = $url1->normalizedUrl;
         }
         if ($url2 instanceof MegaMenuItem) {
-            $url2 = $url2->url;
+            $url2 = $url2->normalizedUrl;
         }
 
         // Is routes
@@ -322,10 +331,10 @@ class MegaMenu extends Component
                         $childModel = ArrayHelper::getValue($itemModel->items, $itemModel->redirectToChild);
                     }
                     if ($childModel) {
-                        $item['url'] = $childModel->url;
+                        $item['url'] = $childModel->normalizedUrl;
                     }
                     $nextLevel--;
-                } elseif ($itemModel->url !== null) {
+                } elseif ($itemModel->normalizedUrl !== null) {
                     $nextLevel--;
                 }
             }
@@ -348,7 +357,7 @@ class MegaMenu extends Component
     protected function findItemRecursive($url, array $items, &$parents)
     {
         foreach ($items as $itemModel) {
-            if ($itemModel->url && $this->isUrlEquals($url, $itemModel->url)) {
+            if ($itemModel->normalizedUrl && $this->isUrlEquals($url, $itemModel->normalizedUrl)) {
                 return $itemModel;
             }
 
@@ -412,7 +421,8 @@ class MegaMenu extends Component
         return $baseItems;
     }
 
-    public function isAllowAccess($url) {
+    public function isAllowAccess($url)
+    {
         $menuItem = $this->getItem($url);
         if (!$menuItem) {
             return true;

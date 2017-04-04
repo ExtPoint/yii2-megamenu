@@ -11,6 +11,7 @@ use yii\web\UrlRule;
  * Class MegaMenuItem
  * @package extpoint\yii2\components
  * @property bool $active
+ * @property-read string $normalizedUrl
  */
 class MegaMenuItem extends Object
 {
@@ -104,7 +105,7 @@ class MegaMenuItem extends Object
         if ($this->_active === null) {
             $this->_active = false;
 
-            if ($this->url && $this->owner->isUrlEquals($this->url, $this->owner->getRequestedRoute())) {
+            if ($this->normalizedUrl && $this->owner->isUrlEquals($this->normalizedUrl, $this->owner->getRequestedRoute())) {
                 $this->_active = true;
             } else {
                 foreach ($this->items as $itemModel) {
@@ -135,7 +136,7 @@ class MegaMenuItem extends Object
             return $this->visible;
         }
 
-        return $this->checkVisible($this->url);
+        return $this->checkVisible($this->normalizedUrl);
     }
 
     /**
@@ -170,6 +171,35 @@ class MegaMenuItem extends Object
         return true;
     }
 
+    public function getNormalizedUrl() {
+        if (is_array($this->url)) {
+            $url = [$this->url[0]];
+            foreach ($this->url as $key => $value) {
+
+                if (strpos($value, ':') !== false) {
+                    list($getter, $name) = explode(':', $value);
+
+                    if (is_int($key) && $key > 0) {
+                        $key = $name;
+                    }
+
+                    switch ($getter) {
+                        case 'user':
+                            $url[$key] = MenuHelper::paramUser($name);
+                            break;
+
+                        case '':
+                        case 'get':
+                            $url[$key] = MenuHelper::paramGet($name);
+                            break;
+                    }
+                }
+            }
+            return $url;
+        }
+        return $this->url;
+    }
+
     /**
      * @return array
      */
@@ -177,7 +207,7 @@ class MegaMenuItem extends Object
     {
         return [
             'label' => $this->label,
-            'url' => $this->url,
+            'url' => $this->getNormalizedUrl(),
             'roles' => $this->roles,
             'visible' => $this->getVisible(),
             'encode' => $this->encode,
