@@ -257,18 +257,21 @@ class MegaMenu extends Component
                 return false;
             }
 
+            $params1 = array_slice($url1, 1);
+            $params2 = array_slice($url2, 1);
+
             // Compare routes' parameters by checking if keys are identical
-            if (count(array_diff_key($url1, $url2)) || count(array_diff_key($url2, $url1))) {
+            if (count(array_diff_key($params1, $params2)) || count(array_diff_key($params2, $params1))) {
                 return false;
             }
 
-            foreach ($url1 as $key => $value) {
+            foreach ($params1 as $key => $value) {
                 if (is_string($key) && $key !== '#') {
-                    if (!array_key_exists($key, $url2)) {
+                    if (!array_key_exists($key, $params2)) {
                         return false;
                     }
 
-                    if ($value !== null && $url2[$key] !== null && $url2[$key] !== $value) {
+                    if ($value !== null && $params2[$key] !== null && $params2[$key] != $value) {
                         return false;
                     }
                 }
