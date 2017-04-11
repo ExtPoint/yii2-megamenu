@@ -248,7 +248,7 @@ class MegaMenuItem extends Object
     public function toArray()
     {
         return [
-            'label' => $this->label,
+            'label' => $this->modelLabel,
             'url' => $this->getNormalizedUrl(),
             'roles' => $this->roles,
             'visible' => $this->getVisible(),
