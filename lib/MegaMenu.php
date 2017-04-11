@@ -192,7 +192,7 @@ class MegaMenu extends Component
 
         $parents = array_reverse((array)$parents);
         $parents[] = [
-            'label' => $itemModel->label,
+            'label' => $itemModel->modelLabel,
             'url' => $itemModel->normalizedUrl,
             'linkOptions' => is_array($itemModel->linkOptions) ? $itemModel->linkOptions : [],
         ];

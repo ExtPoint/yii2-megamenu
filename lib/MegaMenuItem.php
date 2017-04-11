@@ -11,6 +11,7 @@ use yii\web\UrlRule;
  * Class MegaMenuItem
  * @package extpoint\yii2\components
  * @property bool $active
+ * @property-read string $modelLabel
  * @property-read string $normalizedUrl
  */
 class MegaMenuItem extends Object
@@ -98,6 +99,13 @@ class MegaMenuItem extends Object
     public $badge;
 
     /**
+     * @var string
+     */
+    public $modelClass;
+
+    private $_modelLabel;
+
+    /**
      * @return bool
      */
     public function getActive()
@@ -143,7 +151,8 @@ class MegaMenuItem extends Object
      * @param array $url
      * @return bool
      */
-    public function checkVisible($url) {
+    public function checkVisible($url)
+    {
         $rules = array_merge((array)$this->accessCheck, (array)$this->roles);
         if (!empty($rules)) {
             foreach ($rules as $rule) {
@@ -171,11 +180,12 @@ class MegaMenuItem extends Object
         return true;
     }
 
-    public function getNormalizedUrl() {
+    public function getNormalizedUrl()
+    {
         if (is_array($this->url)) {
             $url = [$this->url[0]];
-            foreach ($this->url as $key => $value) {
 
+            foreach ($this->url as $key => $value) {
                 if (strpos($value, ':') !== false) {
                     list($getter, $name) = explode(':', $value);
 
@@ -195,9 +205,41 @@ class MegaMenuItem extends Object
                     }
                 }
             }
+
+            // Append keys from url rule
+            if (is_string($this->urlRule)) {
+                preg_match_all('/<([^:>]+)[:>]/', $this->urlRule, $matches);
+                foreach ($matches[1] as $key) {
+                    if (!isset($url[$key])) {
+                        $url[$key] = MenuHelper::paramGet($key);
+                    }
+                }
+            }
+
             return $url;
         }
         return $this->url;
+    }
+
+    public function getModelLabel() {
+        if ($this->_modelLabel === null) {
+            $this->_modelLabel = $this->label;
+
+            /** @var \extpoint\yii2\base\Model $modelClass */
+            $modelClass = $this->modelClass;
+            $coreModelClassName = '\extpoint\yii2\base\Model';
+            if ($modelClass && class_exists($coreModelClassName) && is_subclass_of($modelClass, $coreModelClassName)) {
+                $pkParam = $modelClass::getRequestParamName();
+                $primaryKey = MenuHelper::paramGet($pkParam);
+                if ($primaryKey) {
+                    $model = $modelClass::findOne($primaryKey);
+                    if ($model) {
+                        $this->_modelLabel = $model->getModelLabel();
+                    }
+                }
+            }
+        }
+        return $this->_modelLabel;
     }
 
     /**
