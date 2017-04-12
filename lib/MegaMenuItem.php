@@ -12,7 +12,7 @@ use yii\web\UrlRule;
  * @package extpoint\yii2\components
  * @property bool $active
  * @property-read string $modelLabel
- * @property-read string $normalizedUrl
+ * @property-read string|array $normalizedUrl
  */
 class MegaMenuItem extends Object
 {
@@ -41,7 +41,7 @@ class MegaMenuItem extends Object
     /**
      * @var bool
      */
-    public $visible;
+    public $visible = true;
 
     /**
      * @var bool
@@ -140,11 +140,7 @@ class MegaMenuItem extends Object
      */
     public function getVisible()
     {
-        if ($this->visible !== null) {
-            return $this->visible;
-        }
-
-        return $this->checkVisible($this->normalizedUrl);
+        return $this->visible && $this->checkVisible($this->normalizedUrl);
     }
 
     /**
