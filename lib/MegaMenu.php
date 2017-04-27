@@ -64,11 +64,6 @@ class MegaMenu extends Component
                         $this->addItems($subModule->coreMenu(), true);
                     }
                 }
-
-                // @todo legacy
-                if (method_exists($module, 'coreMenus')) {
-                    $this->addItems($module->coreMenus(), true);
-                }
             }
         }
 

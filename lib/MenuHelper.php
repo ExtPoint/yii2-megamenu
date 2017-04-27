@@ -10,8 +10,7 @@ use yii\web\Request;
 class MenuHelper
 {
     /**
-     * @TODO describe method
-     *
+     * Recursive scan all items and return url rules for `UrlManager` component
      * @param  array $items
      * @return array
      */
@@ -55,7 +54,7 @@ class MenuHelper
      */
     public static function normalizeRoute($route)
     {
-        $route = Yii::getAlias((string) $route);
+        $route = Yii::getAlias((string)$route);
         if (strncmp($route, '/', 1) === 0) {
             // absolute route
             return trim($route, '/');
