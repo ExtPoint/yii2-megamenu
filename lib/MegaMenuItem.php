@@ -199,6 +199,8 @@ class MegaMenuItem extends Object
                             $url[$key] = MenuHelper::paramGet($name);
                             break;
                     }
+                } elseif ($value !== null) {
+                    $url[$key] = $value;
                 }
             }
 
