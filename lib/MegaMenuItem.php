@@ -154,9 +154,15 @@ class MegaMenuItem extends Object
             foreach ($rules as $rule) {
                 if (is_callable($rule)) {
                     $params = call_user_func($rule, $url);
-                    $permissionName = ArrayHelper::remove($params, '0');
-                    if ($permissionName && Yii::$app->user->can($permissionName, $params)) {
-                        return true;
+                    if (is_array($params)) {
+                        $permissionName = ArrayHelper::remove($params, '0');
+                        if ($permissionName && Yii::$app->user->can($permissionName, $params)) {
+                            return true;
+                        }
+                    } elseif (is_bool($params)) {
+                        if ($params) {
+                            return true;
+                        }
                     }
                 } elseif ($rule === '?') {
                     if (Yii::$app->user->isGuest) {
