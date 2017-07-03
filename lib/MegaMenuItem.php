@@ -149,7 +149,14 @@ class MegaMenuItem extends Object
      */
     public function checkVisible($url)
     {
-        $rules = array_merge((array)$this->accessCheck, (array)$this->roles);
+        $rules = (array) $this->roles;
+        if (is_callable($this->accessCheck)) {
+            $rules[] = $this->accessCheck;
+        } elseif (is_array($this->accessCheck) && count($this->accessCheck) === 2 && call_user_func_array('method_exists', $this->accessCheck)) {
+            $rules[] = $this->accessCheck;
+        } elseif ($this->accessCheck) {
+            $rules = array_merge($rules, (array) $this->accessCheck);
+        }
         if (!empty($rules)) {
             foreach ($rules as $rule) {
                 if (is_callable($rule)) {
