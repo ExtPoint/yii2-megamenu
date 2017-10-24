@@ -96,7 +96,7 @@ class MegaMenu extends Component
             // Set active item
             $parseInfo = Yii::$app->urlManager->parseRequest(Yii::$app->request);
             if ($parseInfo) {
-                $this->_requestedRoute = [$parseInfo[0] ? '/' . $parseInfo[0] : ''] + $parseInfo[1];
+                $this->_requestedRoute = array_merge([$parseInfo[0] ? '/' . $parseInfo[0] : ''], $parseInfo[1]);
             } else {
                 $this->_requestedRoute = ['/' . Yii::$app->errorHandler->errorAction];
             }
@@ -374,14 +374,14 @@ class MegaMenu extends Component
         return null;
     }
 
-    protected function mergeItems($baseItems, $items, $append)
+    protected function mergeItems($baseItems, $items, $append, $parentItem = null)
     {
         foreach ($items as $id => $item) {
             // Merge item with group (as key)
             if (is_string($id) && isset($baseItems[$id])) {
                 foreach ($item as $key => $value) {
                     if ($key === 'items') {
-                        $baseItems[$id]->$key = $this->mergeItems($baseItems[$id]->$key, $value, $append);
+                        $baseItems[$id]->$key = $this->mergeItems($baseItems[$id]->$key, $value, $append, $baseItems[$id]);
                     } elseif (is_array($baseItems[$id]) && is_array($value)) {
                         $baseItems[$id]->$key = $append ?
                             ArrayHelper::merge($baseItems[$id]->$key, $value) :
@@ -393,8 +393,14 @@ class MegaMenu extends Component
             } else {
                 // Create instance
                 if (!($item instanceof MegaMenuItem)) {
-                    $item = new MegaMenuItem($item + ['owner' => $this]);
-                    $item->items = $this->mergeItems([], $item->items, true);
+                    $item = new MegaMenuItem(array_merge(
+                        $item,
+                        [
+                            'owner' => $this,
+                            'parent' => $parentItem,
+                        ]
+                    ));
+                    $item->items = $this->mergeItems([], $item->items, true, $item);
                 }
 
                 // Append or prepend item
@@ -408,7 +414,7 @@ class MegaMenu extends Component
                     if ($append) {
                         $baseItems[$id] = $item;
                     } else {
-                        $baseItems = [$id => $item] + $baseItems;
+                        $baseItems = array_merge([$id => $item], $baseItems);
                     }
                 }
             }

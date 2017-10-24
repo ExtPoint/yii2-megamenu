@@ -10,6 +10,8 @@ use yii\web\UrlRule;
 /**
  * Class MegaMenuItem
  * @package extpoint\yii2\components
+ * @property string|string[]|null $roles
+ * @property callable|callable[]|null $accessCheck
  * @property bool $active
  * @property-read string $modelLabel
  * @property-read string|array $normalizedUrl
@@ -36,7 +38,7 @@ class MegaMenuItem extends Object
      * Value format is identical to \yii\filters\AccessRule::roles. "?", "@" or string role are supported
      * @var string|string[]
      */
-    public $roles;
+    private $_roles;
 
     /**
      * @var bool
@@ -74,6 +76,11 @@ class MegaMenuItem extends Object
     public $owner;
 
     /**
+     * @var MegaMenuItem
+     */
+    public $parent;
+
+    /**
      * @var bool|string|int
      */
     public $redirectToChild = false;
@@ -86,7 +93,7 @@ class MegaMenuItem extends Object
     /**
      * @var callable|callable[]
      */
-    public $accessCheck;
+    private $_accessCheck;
 
     /**
      * @var string
@@ -104,6 +111,44 @@ class MegaMenuItem extends Object
     public $modelClass;
 
     private $_modelLabel;
+
+    /**
+     * @return callable|callable[]|null
+     */
+    public function getAccessCheck()
+    {
+        if ($this->_accessCheck === null && $this->parent) {
+            return $this->parent->getAccessCheck();
+        }
+        return $this->_accessCheck;
+    }
+
+    /**
+     * @param callable|callable[]|null $value
+     */
+    public function setAccessCheck($value)
+    {
+        $this->_accessCheck = $value;
+    }
+
+    /**
+     * @return string|string[]|null
+     */
+    public function getRoles()
+    {
+        if ($this->_roles === null && $this->parent) {
+            return $this->parent->getRoles();
+        }
+        return $this->_roles;
+    }
+
+    /**
+     * @param string|string[]|null $value
+     */
+    public function setRoles($value)
+    {
+        $this->_roles = $value;
+    }
 
     /**
      * @return bool
@@ -149,7 +194,7 @@ class MegaMenuItem extends Object
      */
     public function checkVisible($url)
     {
-        $rules = (array) $this->roles;
+        $rules = (array) $this->getRoles();
         if (is_callable($this->accessCheck)) {
             $rules[] = $this->accessCheck;
         } elseif (is_array($this->accessCheck) && count($this->accessCheck) === 2 && call_user_func_array('method_exists', $this->accessCheck)) {
@@ -261,7 +306,7 @@ class MegaMenuItem extends Object
         return [
             'label' => $this->modelLabel,
             'url' => $this->getNormalizedUrl(),
-            'roles' => $this->roles,
+            'roles' => $this->getRoles(),
             'visible' => $this->getVisible(),
             'encode' => $this->encode,
             'active' => $this->active,
