@@ -396,6 +396,7 @@ class MegaMenu extends Component
                     $item = new MegaMenuItem(array_merge(
                         $item,
                         [
+                            'id' => $id,
                             'owner' => $this,
                             'parent' => $parentItem,
                         ]

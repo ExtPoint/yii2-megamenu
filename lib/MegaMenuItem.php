@@ -2,7 +2,9 @@
 
 namespace extpoint\megamenu;
 
+use extpoint\yii2\components\AuthManager;
 use Yii;
+use yii\base\Exception;
 use yii\base\Object;
 use yii\helpers\ArrayHelper;
 use yii\web\UrlRule;
@@ -15,9 +17,15 @@ use yii\web\UrlRule;
  * @property bool $active
  * @property-read string $modelLabel
  * @property-read string|array $normalizedUrl
+ * @property-read array $pathIds
  */
 class MegaMenuItem extends Object
 {
+    /**
+     * @var int|string
+     */
+    public $id;
+
     /**
      * @var string
      */
@@ -43,7 +51,7 @@ class MegaMenuItem extends Object
     /**
      * @var bool
      */
-    public $visible = true;
+    public $_visible = true;
 
     /**
      * @var bool
@@ -185,16 +193,43 @@ class MegaMenuItem extends Object
      */
     public function getVisible()
     {
-        return $this->visible && $this->checkVisible($this->normalizedUrl);
+        return $this->_visible && $this->checkVisible($this->normalizedUrl);
+    }
+
+    /**
+     * @param bool
+     */
+    public function setVisible($value)
+    {
+        $this->_visible = $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPathIds()
+    {
+        return array_merge(ArrayHelper::getValue($this->parent, 'pathIds', []), [$this->id]);
     }
 
     /**
      * @param array $url
      * @return bool
+     * @throws Exception
      */
     public function checkVisible($url)
     {
-        $rules = (array) $this->getRoles();
+        $authManager = Yii::$app->has('authManager') && get_class(Yii::$app->authManager) === 'extpoint\yii2\components\AuthManager'
+            ? Yii::$app->authManager
+            : null;
+
+        $roles = (array) $this->getRoles();
+
+        $rules = [];
+        if ($authManager) {
+            $rules = array_merge($rules, $roles);
+        }
+
         if (is_callable($this->accessCheck)) {
             $rules[] = $this->accessCheck;
         } elseif (is_array($this->accessCheck) && count($this->accessCheck) === 2 && call_user_func_array('method_exists', $this->accessCheck)) {
@@ -202,6 +237,7 @@ class MegaMenuItem extends Object
         } elseif ($this->accessCheck) {
             $rules = array_merge($rules, (array) $this->accessCheck);
         }
+
         if (!empty($rules)) {
             foreach ($rules as $rule) {
                 if (is_callable($rule)) {
@@ -228,7 +264,14 @@ class MegaMenuItem extends Object
                     return true;
                 }
             }
-            return false;
+        }
+
+        // Check access by auth manager
+        if ($authManager) {
+            if (!empty($roles)) {
+                throw new Exception('Remove "roles" param in menu item config, because you used "authManager" component for access check. Item ID: ' . implode('.', $this->pathIds));
+            }
+            return $authManager->checkMenuAccess(Yii::$app->user->identity, $this);
         }
 
         return true;
