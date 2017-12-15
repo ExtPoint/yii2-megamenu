@@ -51,7 +51,7 @@ class MegaMenuItem extends Object
     /**
      * @var bool
      */
-    public $_visible = true;
+    private $_visible = true;
 
     /**
      * @var bool
