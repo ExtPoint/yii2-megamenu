@@ -27,7 +27,7 @@ class MenuHelper
 
                 if (is_string($urlRule)) {
                     $rules[] = [
-                        'pattern' => $urlRule,
+                        'pattern' => Yii::getAlias($urlRule),
                         'route' => $route,
                     ];
                 } elseif (is_array($urlRule)) {
