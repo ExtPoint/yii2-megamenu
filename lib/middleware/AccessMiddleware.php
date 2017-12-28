@@ -6,7 +6,7 @@ use extpoint\yii2\base\Controller;
 use yii\base\ActionEvent;
 use yii\base\Object;
 use yii\web\Application;
-use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 
 class AccessMiddleware extends Object
 {
@@ -22,7 +22,7 @@ class AccessMiddleware extends Object
 
     /**
      * @param ActionEvent $event
-     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
      */
     public static function checkAccess($event)
     {
@@ -31,8 +31,16 @@ class AccessMiddleware extends Object
             return;
         }
 
+        // Skip error action
+        if ($event->action->uniqueId === \Yii::$app->errorHandler->errorAction) {
+            return;
+        }
+
         $item = \Yii::$app->megaMenu->getActiveItem();
-        if (!$item || !$item->checkVisible($item->normalizedUrl)) {
+        if (!$item) {
+            throw new NotFoundHttpException();
+        }
+        if (!$item->checkVisible($item->normalizedUrl)) {
             if (\Yii::$app->user->isGuest) {
                 \Yii::$app->user->loginRequired();
             }
