@@ -248,7 +248,9 @@ class MegaMenuItem extends Object
                             return true;
                         }
                     } elseif (is_bool($params)) {
-                        return $params;
+                        if ($params === true) {
+                            return true;
+                        }
                     }
                 } elseif ($rule === '?') {
                     if (Yii::$app->user->isGuest) {
@@ -262,6 +264,7 @@ class MegaMenuItem extends Object
                     return true;
                 }
             }
+            return false;
         }
 
         // Check access by auth manager
