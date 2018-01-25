@@ -248,9 +248,7 @@ class MegaMenuItem extends Object
                             return true;
                         }
                     } elseif (is_bool($params)) {
-                        if ($params) {
-                            return true;
-                        }
+                        return $params;
                     }
                 } elseif ($rule === '?') {
                     if (Yii::$app->user->isGuest) {
