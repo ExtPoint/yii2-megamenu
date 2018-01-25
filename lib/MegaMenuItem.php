@@ -226,7 +226,7 @@ class MegaMenuItem extends Object
         $roles = (array) $this->getRoles();
 
         $rules = [];
-        if ($authManager) {
+        if (!$authManager) {
             $rules = array_merge($rules, $roles);
         }
 
