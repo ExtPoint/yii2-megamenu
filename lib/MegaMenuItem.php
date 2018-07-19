@@ -5,7 +5,7 @@ namespace extpoint\megamenu;
 use extpoint\yii2\components\AuthManager;
 use Yii;
 use yii\base\Exception;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
 use yii\web\UrlRule;
 
@@ -19,7 +19,7 @@ use yii\web\UrlRule;
  * @property-read string|array $normalizedUrl
  * @property-read array $pathIds
  */
-class MegaMenuItem extends Object
+class MegaMenuItem extends BaseObject
 {
     /**
      * @var int|string
